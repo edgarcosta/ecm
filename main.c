@@ -351,6 +351,55 @@ mod_from_mpq (mpz_t r, mpq_t q, mpz_t N, int verbose)
     return ret;
 }
 
+/* Read bound from arg, format can be 123 or 1.01e6.
+   Returns 1 on sucess, 0 on error.
+ */
+static int
+read_bound_single (mpz_t B, char *arg)
+{
+  /* Check %Zd for full precision first, fall back to float for scientific */
+  int c;
+  if (gmp_sscanf (arg, "%Zd%n", B, &c) == 1)
+    {
+      if (c > 0 && arg[c] == '\0')
+          return 1;
+    }
+  double tmp;
+  if (gmp_sscanf (arg, "%lf%n", &tmp, &c) == 1)
+    if (c > 0 && arg[c] == '\0') {
+       mpz_set_d (B, tmp);
+       return 1;
+    }
+  return 0;
+}
+
+/* Read B1 or B2 bound from arg, format can be 123, 1e6, 123-1e6, or 1e6-1e9.
+   If no starting value is provided Bmin is set to default_bound.
+   Returns 1 on success, 0 on error.
+ */
+static int
+read_bound (mpz_t Bmin, mpz_t Bmax, char *arg, signed int default_bound)
+{
+  char *endptr;
+  /* Negative numbers not allowed, the only valid '-' is the split point */
+  for (endptr = arg; *endptr != '\0' && *endptr != '-'; endptr++);
+
+  if (*endptr == '-')
+    {
+      /* Temporarily split arg to two strings */
+      (*endptr) = '\0';
+      int result = read_bound_single(Bmin, arg);
+      if (result)
+        result = read_bound_single(Bmax, endptr+1);
+      (*endptr) = '-';
+      return result;
+    }
+
+  /* Parse as single value */
+  mpz_set_si(Bmin, default_bound);
+  return read_bound_single(Bmax, arg);
+}
+
 /******************************************************************************
 *                                                                             *
 *                                Main program                                 *
@@ -953,18 +1002,15 @@ main (int argc, char *argv[])
 #endif
     }
   
-  /* set first stage bound B1 */
-  B1 = strtod (argv[1], &argv[1]);
-  if (*argv[1] == '-')
+  /* Set first stage bound B1 from argv[1] into mpz B2min and B2. */
+  if (!read_bound (B2min, B2, argv[1], ECM_DEFAULT_B1_DONE))
     {
-      B1done = B1;
-      B1 = strtod (argv[1] + 1, NULL);
+      fprintf (stderr, "Failed to parse B1 bounds from '%s'\n", argv[1]);
+      exit (EXIT_FAILURE);
     }
-  else
-    B1done = ECM_DEFAULT_B1_DONE;
-  mpz_set_si (B2min, -1); /* default, means that B2min will be set to B1 by
-                             ecm(), pm1() and pp1() */
 
+  B1done = mpz_get_d (B2min);
+  B1 = mpz_get_d (B2);
   if (B1 < 0.0 || B1done < 0.0)
     {
       fprintf (stderr, "Bound values must be positive\n");
@@ -978,69 +1024,22 @@ main (int argc, char *argv[])
       exit (EXIT_FAILURE);
     }
 
+  mpz_set_si (B2min, ECM_DEFAULT_B2); /* default, means that B2min will be set to B1 by
+                                         ecm(), pm1() and pp1() */
   mpz_set_si (B2, ECM_DEFAULT_B2); /* compute it automatically from B1 */
   /* parse B2 or B2min-B2max */
   if (argc >= 3)
     {
-      int c;
-      double d;
-      char *endptr;
-
-      /* This is like strtok, but SunOS does not seem to have it declared in
-         any header files, in spite of saying it does in the man pages... */
-      for (endptr = argv[2]; *endptr != '\0' && *endptr != '-'; endptr++);
-      if (*endptr == '-')
-        *(endptr++) = '\0';
-      else
-        endptr = NULL;
-      
-      c = -1;
-      {
-	int r;
-
-	r = gmp_sscanf (argv[2], "%Zd%n", B2, &c); /* Try parsing as integer */
-	if (r <= 0)
-	  {
-	    /* restore original value */
-	    if (endptr != NULL)
-	      *(--endptr) = '-';
-	    fprintf (stderr, "Invalid B2 value: %s\n", argv[2]);
-	    exit (EXIT_FAILURE);
-	  }
-      }
-      if (c < 0 || argv[2][c] != '\0')
-        {
-          c = -1;
-          gmp_sscanf (argv[2], "%lf%n", &d, &c); /* Try parsing scientific */
-          mpz_set_d (B2, d);
-        }
-      if (c < 0 || argv[2][c] != '\0' || argv[2][0] == '\0') 
-      /* If not the whole token could be parsed either way, or if there was
-         no token to begin with (i.e string starting with '-') signal error */
-        c = -1;
-      else if (endptr != NULL) /* Did we have a '-' in there? */
-        {
-          mpz_set (B2min, B2);
-          /* make sure B2min is not less than B1 */
-          if (mpz_cmp_d (B2min, B1) < 0)
-            mpz_set_d (B2min, B1);
-
-          c = -1;
-          gmp_sscanf (endptr, "%Zd%n", B2, &c);
-          if (c < 0 || endptr[c] != '\0')
-            {
-              gmp_sscanf (endptr, "%lf%n", &d, &c);
-              mpz_set_d (B2, d);
-            }
-          if (c < 0 || endptr[c] != '\0')
-            c = -1;
-        }
-      if (c == -1)
+      if (!read_bound (B2min, B2, argv[2], ECM_DEFAULT_B2))
         {
           fprintf (stderr, "Error: expected positive integer(s) B2 or "
                    "B2min-B2\n");
           exit (EXIT_FAILURE);
         }
+
+      /* if B2min was set make sure B2min is not less than B1 */
+      if (mpz_cmp_si (B2min, ECM_DEFAULT_B2) != 0 && mpz_cmp_d (B2min, B1) < 0)
+        mpz_set_d (B2min, B1);
     }
 
   /* set static parameters (i.e. those that don't change during the program) */
