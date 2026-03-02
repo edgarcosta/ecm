@@ -135,8 +135,6 @@ int kbnc_str (double *k, unsigned long *b, unsigned long *n, signed long *c,
 /* eval.c */
 int eval (mpcandi_t *n, FILE *fd, int bPrp);
 int eval_str (mpcandi_t *n, char *cp, int primetest, char **EndChar); /* EndChar can be NULL */
-void init_expr (void);
-void free_expr (void);
 
 /* candi.c */
 void mpcandi_t_init (mpcandi_t *n);  /* damn, a C++ class sure would have been nice :(  */

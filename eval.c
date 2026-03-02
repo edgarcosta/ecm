@@ -61,7 +61,7 @@ http://www.gnu.org/licenses/ or write to the Free Software Foundation, Inc.,
  ****************************************************************/
 
 /* value only used by the expression parser */
-static mpz_t t, mpOne;
+static mpz_t t;
 static char *expr_str;
 
 static void eval_power (mpz_t n, const mpz_t arg, char op);
@@ -416,8 +416,11 @@ int eval_Phi (mpz_t* params, mpz_t n)
         {
           if ( mpz_root (T, params[0], power) ) break;
         }
-      int isPrime = mpz_probab_prime_p (T, PROBAB_PRIME_TESTS);
-      mpz_set (n, isPrime ? T : mpOne);
+      if (mpz_probab_prime_p (T, PROBAB_PRIME_TESTS)) {
+          mpz_set (n, T);
+      } else {
+          mpz_set_ui (n, 1);
+      }
       mpz_clear(T);
       return 1;
     }
@@ -1008,14 +1011,4 @@ MONADIC_SUFFIX_LOOP:
 	    }
 	}
     }
-}
-
-void init_expr(void)
-{
-  mpz_init_set_ui(mpOne, 1);
-}
-
-void free_expr(void)
-{
-  mpz_clear(mpOne);
 }

@@ -978,8 +978,6 @@ main (int argc, char *argv[])
       exit (EXIT_FAILURE);
     }
 
-  init_expr ();
-
   mpz_set_si (B2, ECM_DEFAULT_B2); /* compute it automatically from B1 */
   /* parse B2 or B2min-B2max */
   if (argc >= 3)
@@ -1645,8 +1643,6 @@ main (int argc, char *argv[])
   mpcandi_t_free (&n);
 
  free_all:
-  free_expr ();
-
   mpq_clear (rat_y0);
   mpq_clear (rat_x0);
   mpq_clear (rat_A);
