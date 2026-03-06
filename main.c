@@ -22,6 +22,7 @@ http://www.gnu.org/licenses/ or write to the Free Software Foundation, Inc.,
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <time.h>
 #include <math.h>
 #ifdef _MSC_VER
@@ -1093,7 +1094,7 @@ main (int argc, char *argv[])
       /* Are we not appending and does this file already exist ? */
       if (!saveappend && access (savefilename, F_OK) == 0)
         {
-          printf ("Save file %s already exists, will not overwrite\n", 
+          fprintf (stderr, "Save file %s already exists, will not overwrite\n",
                   savefilename);
           exit (EXIT_FAILURE);
         }
@@ -1105,6 +1106,19 @@ main (int argc, char *argv[])
           exit (EXIT_FAILURE);
         }
       fclose (savefile);
+      if (!saveappend)
+        {
+          /* double check that savefile is empty, it was newly created in fopen above. */
+          struct stat stat_buf;
+          ASSERT_ALWAYS (stat(savefilename, &stat_buf) == 0);
+          ASSERT_ALWAYS (stat_buf.st_size == 0);
+          /* Delete nonappend savefile to prevent empty files. */
+          if (remove (savefilename) != 0)
+            {
+              fprintf (stderr, "Save file %s could not be cleaned up\n", savefilename);
+              exit (EXIT_FAILURE);
+            }
+        }
     }
 
   if (specific_sigma && (specific_x0 || specific_A))
