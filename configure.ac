@@ -285,7 +285,8 @@ if test "x$enable_asm_redc" = xyes; then
   GMP_ASM_UNDERSCORE
   GMP_ASM_TEXT
   GMP_ASM_GLOBL
-  GMP_ASM_TYPE 
+  GMP_ASM_LABEL_SUFFIX
+  GMP_ASM_TYPE
 
   case $host in
     *-*-mingw*|*cygwin*) GMP_DEFINE([WINDOWS64_ABI], 1)
