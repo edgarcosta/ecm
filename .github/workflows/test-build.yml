@@ -1,0 +1,102 @@
+name: Test build
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            name: macOS ARM64
+          - os: macos-15-intel
+            name: macOS x86_64
+          - os: ubuntu-latest
+            name: Linux x86_64
+
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install gmp autoconf automake libtool
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libgmp-dev autoconf automake libtool
+
+      - name: Build and test
+        shell: bash
+        run: |
+          autoreconf --force --install
+
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            GMP_PREFIX="$(brew --prefix gmp)"
+            export CPPFLAGS="-I$GMP_PREFIX/include${CPPFLAGS:+ $CPPFLAGS}"
+            export LDFLAGS="-L$GMP_PREFIX/lib${LDFLAGS:+ $LDFLAGS}"
+            ./configure --enable-shared --with-gmp="$GMP_PREFIX"
+          else
+            ./configure --enable-shared
+          fi
+
+          make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
+          make check
+
+      - name: Verify underscore detection
+        if: always()
+        shell: bash
+        run: |
+          echo "=== Ground truth: does this platform use underscore-prefixed symbols? ==="
+          echo "int gurkmacka;" > /tmp/conftest.c
+          ${CC:-cc} -c /tmp/conftest.c -o /tmp/conftest.o
+          echo "nm output:"
+          nm /tmp/conftest.o | grep gurkmacka
+          if nm /tmp/conftest.o | grep -q ' _gurkmacka'; then
+            ACTUAL=yes
+          else
+            ACTUAL=no
+          fi
+          echo "Actual underscore prefix on this platform: $ACTUAL"
+
+          echo ""
+          echo "=== What did configure detect? ==="
+          if grep -q "gmp_cv_asm_underscore" config.log 2>/dev/null; then
+            grep "gmp_cv_asm_underscore" config.log | tail -3
+          else
+            echo "Underscore test was not run (asm-redc disabled on this platform)"
+          fi
+
+          if grep -q "GSYM_PREFIX" config.m4 2>/dev/null; then
+            echo "config.m4: $(grep GSYM_PREFIX config.m4)"
+          fi
+
+          echo ""
+          echo "=== Old link-based detection (for comparison) ==="
+          # Replicate the old link-based test to show it fails on macOS
+          cat > /tmp/conftes1.c << 'EOF'
+          extern void underscore_test(void);
+          int main(void) { underscore_test(); return 0; }
+          EOF
+          for prefix in "" "_"; do
+            printf ".globl ${prefix}underscore_test\n${prefix}underscore_test:\nret\n" > /tmp/conftes2.s
+            if ${CC:-cc} -c /tmp/conftes1.c -o /tmp/conftes1.o 2>/dev/null && \
+               ${CC:-cc} -c /tmp/conftes2.s -o /tmp/conftes2.o 2>/dev/null && \
+               ${CC:-cc} /tmp/conftes1.o /tmp/conftes2.o -o /tmp/conftest 2>/dev/null; then
+              echo "Old link test with prefix='${prefix}': LINKED OK"
+            else
+              echo "Old link test with prefix='${prefix}': FAILED TO LINK"
+            fi
+          done
+
+          echo ""
+          if [[ "$ACTUAL" == "yes" ]]; then
+            echo "SUMMARY: This platform needs underscore prefix (actual=$ACTUAL)"
+          else
+            echo "SUMMARY: This platform does not need underscore prefix (actual=$ACTUAL)"
+          fi
