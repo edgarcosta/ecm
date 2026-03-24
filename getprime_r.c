@@ -24,6 +24,7 @@
 
 /* compile with -DMAIN to use as a standalone program */
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -47,6 +48,49 @@
 
       prime_info_clear (pi);
 */
+
+#ifdef HAVE_LIBPRIMESIEVE
+#include <primesieve.h>
+void
+prime_info_init (prime_info_t i)
+{
+    primesieve_init(i);
+    // getprime starts at 3 so consume 2 here.
+    primesieve_next_prime (i);
+}
+
+void
+prime_info_clear (prime_info_t i)
+{
+    primesieve_free_iterator (i);
+}
+
+ecm_uint
+getprime_mt (prime_info_t i)
+{
+    return primesieve_next_prime (i);
+}
+
+ecm_uint
+getprime_last_prime (prime_info_t i)
+{
+  assert (i->primes != NULL);
+  ecm_uint p = i->primes[i->i];
+  /* after prime_info_init p = 2, return 0 in that case. */
+  return p > 2 ? p : 0;
+}
+
+
+/* Returns first prime >= n */
+ecm_uint
+getprime_jump_and_next_mt (prime_info_t i, ecm_uint n)
+{
+    /* Never jump less than 3. */
+    primesieve_jump_to (i, (n <= 3) ? 3: n, ECM_UINT_MAX);
+    return primesieve_next_prime (i);
+}
+
+#else  // HAVE_LIBPRIMESIEVE
 
 void
 prime_info_init (prime_info_t i)
@@ -77,8 +121,6 @@ getprime_last_prime (prime_info_t i)
   }
   return i->offset + 2 * i->current;
 }
-
-
 
 /* this function is thread-safe */
 ecm_uint
@@ -215,6 +257,7 @@ getprime_jump_and_next_mt (prime_info_t i, ecm_uint n)
    } while (p < n);
    return p;
 }
+#endif  // HAVE_LIBPRIMESIEVE
 
 
 #ifdef MAIN
