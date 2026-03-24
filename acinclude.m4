@@ -275,73 +275,59 @@ echo ["include($1)"] >> $gmp_tmpconfigm4
 dnl  GMP_ASM_UNDERSCORE
 dnl  ------------------
 dnl  Determine whether global symbols need to be prefixed with an underscore.
-dnl  A test program is linked to an assembler module with or without an
-dnl  underscore to see which works.
+dnl  We compile a test C file and use nm to check whether the resulting symbol
+dnl  has an underscore prefix or not.  This approach is taken from GMP 6.3.0
+dnl  and replaces the previous link-based test which broke on macOS with
+dnl  Xcode 15+ due to linker changes.
 dnl
-dnl  This method should be more reliable than grepping a .o file or using
-dnl  nm, since it corresponds to what a real program is going to do.  Note
-dnl  in particular that grepping doesn't work with SunOS 4 native grep since
-dnl  that grep seems to have trouble with '\0's in files.
+dnl  The fallback on no underscore is based on the assumption that the world
+dnl  is moving towards non-underscore systems.  There should actually be no
+dnl  good reason for nm to fail though.
 
 AC_DEFUN([GMP_ASM_UNDERSCORE],
-[AC_REQUIRE([GMP_ASM_TEXT])
-AC_REQUIRE([GMP_ASM_GLOBL])
-AC_REQUIRE([GMP_ASM_LABEL_SUFFIX])
-AC_CACHE_CHECK([if globals are prefixed by underscore], 
+[AC_CACHE_CHECK([if globals are prefixed by underscore],
                gmp_cv_asm_underscore,
-[cat >conftes1.c <<EOF
-#ifdef __cplusplus
-extern "C" { void underscore_test(); }
-#else
-extern void underscore_test();
-#endif
-int main () { underscore_test(); return 1; }
+[gmp_cv_asm_underscore="unknown"
+cat >conftest.c <<EOF
+int gurkmacka;
 EOF
-for tmp_underscore in "" "_"; do
-  cat >conftes2.s <<EOF
-      	$gmp_cv_asm_text
-	$gmp_cv_asm_globl ${tmp_underscore}underscore_test
-${tmp_underscore}underscore_test$gmp_cv_asm_label_suffix
-EOF
-  case $host in
-  *-*-aix*)
-    cat >>conftes2.s <<EOF
-	$gmp_cv_asm_globl .${tmp_underscore}underscore_test
-.${tmp_underscore}underscore_test$gmp_cv_asm_label_suffix
-EOF
-    ;;
-  esac
-  gmp_compile="$CC $CFLAGS $CPPFLAGS -c conftes1.c >&AS_MESSAGE_LOG_FD && $CCAS $CCASFLAGS -c conftes2.s >&AS_MESSAGE_LOG_FD && $CC $CFLAGS $LDFLAGS conftes1.$OBJEXT conftes2.$OBJEXT >&AS_MESSAGE_LOG_FD"
-  if AC_TRY_EVAL(gmp_compile); then
-    eval tmp_result$tmp_underscore=yes
+gmp_compile="$CC $CFLAGS $CPPFLAGS -c conftest.c >&AS_MESSAGE_LOG_FD"
+if AC_TRY_EVAL(gmp_compile); then
+  if $NM conftest.$OBJEXT >conftest.out 2>&AS_MESSAGE_LOG_FD; then
+    if grep "[[ 	]]_gurkmacka" conftest.out >/dev/null; then
+      gmp_cv_asm_underscore=yes
+    elif grep "[[ 	]]gurkmacka" conftest.out >/dev/null; then
+      gmp_cv_asm_underscore=no
+    else
+      echo "configure: $NM doesn't have gurkmacka:" >&AS_MESSAGE_LOG_FD
+      cat conftest.out >&AS_MESSAGE_LOG_FD
+    fi
   else
-    eval tmp_result$tmp_underscore=no
-  fi
-done
-
-if test $tmp_result_ = yes; then
-  if test $tmp_result = yes; then
-    AC_MSG_ERROR([Test program unexpectedly links both with and without underscore.])
-  else
-    gmp_cv_asm_underscore=yes
+    echo "configure: $NM failed on conftest.$OBJEXT" >&AS_MESSAGE_LOG_FD
   fi
 else
-  if test $tmp_result = yes; then
-    gmp_cv_asm_underscore=no
-  else
-dnl AC_MSG_ERROR([Test program links neither with nor without underscore.])
-dnl In GMP 6.3.0, there fallback is on no underscore, based on the assumption
-dnl that the worldis moving towards non-underscore systems. We do the same.
-    gmp_cv_asm_underscore=no
-  fi
+  echo "configure: failed program was:" >&AS_MESSAGE_LOG_FD
+  cat conftest.c >&AS_MESSAGE_LOG_FD
 fi
-rm -f conftes1* conftes2* a.out
+rm -f conftest*
 ])
-if test "$gmp_cv_asm_underscore" = "yes"; then
-  GMP_DEFINE(GSYM_PREFIX, [_])
-else
-  GMP_DEFINE(GSYM_PREFIX, [])
-fi    
+case $gmp_cv_asm_underscore in
+  yes)
+    GMP_DEFINE(GSYM_PREFIX, [_]) ;;
+  no)
+    GMP_DEFINE(GSYM_PREFIX, []) ;;
+  *)
+    AC_MSG_WARN([+----------------------------------------------------------])
+    AC_MSG_WARN([| Cannot determine global symbol prefix.])
+    AC_MSG_WARN([| $NM output doesn't contain a global data symbol.])
+    AC_MSG_WARN([| Will proceed with no underscore.])
+    AC_MSG_WARN([| If this is wrong then you'll get link errors referring])
+    AC_MSG_WARN([| to ___gmpn_add_n (note three underscores).])
+    AC_MSG_WARN([| In this case do a fresh build with an override,])
+    AC_MSG_WARN([|     ./configure gmp_cv_asm_underscore=yes])
+    AC_MSG_WARN([+----------------------------------------------------------])
+    GMP_DEFINE(GSYM_PREFIX, []) ;;
+esac
 ])
 
 # If we are not cross-compiling, do AC_RUN_IFELSE. If we are cross-compiling,
