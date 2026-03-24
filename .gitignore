@@ -4,6 +4,9 @@
 *.la
 *.in
 aprtcle/.dirstamp
+tests/.dirstamp
+Lchain_codes.dat
+LucasChainGenerator/src/.dirstamp
 
 # Binaries
 aprcl
@@ -15,6 +18,7 @@ rho
 test-driver
 tune
 nodist/countsmooth
+LucasChainGen
 *.exe
 
 # Automake file
@@ -28,9 +32,14 @@ stamp-h1
 stamp-h2
 
 # Test logs
+tests/t-getprime_r
+tests/t-*.log
+tests/t-*.trs
 test.*.log
 test.*.trs
 *.txt
+test-suite.log
+
 
 # Misc
 autom4te.cache/

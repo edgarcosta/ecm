@@ -140,7 +140,8 @@ ecm-params:	bench_mulredc$(EXEEXT) tune$(EXEEXT)
 		./bench_mulredc > ecm-params.h
 		./tune >> ecm-params.h
 
-check_PROGRAMS = ecm$(EXEEXT)
+TEST_LIST = tests/t-getprime_r
+check_PROGRAMS = ecm$(EXEEXT) $(TEST_LIST)
 
 dist_check_SCRIPTS = test.pp1 test.pm1 test.ecm test.ecmfactor
 if WANT_GPU
@@ -150,7 +151,7 @@ if WITH_GWNUM
 dist_check_SCRIPTS += test.gwnum
 endif
 
-TESTS = $(dist_check_SCRIPTS)
+TESTS = $(TEST_LIST) $(dist_check_SCRIPTS)
 TESTS_ENVIRONMENT = $(VALGRIND)
 
 # see https://www.gnu.org/software/automake/manual/html_node/Scripts_002dbased-Testsuites.html
