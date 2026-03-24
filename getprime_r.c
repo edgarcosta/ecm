@@ -68,6 +68,18 @@ prime_info_clear (prime_info_t i)
   free (i->moduli);
 }
 
+ecm_uint
+getprime_last_prime (prime_info_t i)
+{
+  if (i->len == 0)
+  {
+      return 0; /* No previous prime */
+  }
+  return i->offset + 2 * i->current;
+}
+
+
+
 /* this function is thread-safe */
 ecm_uint
 getprime_mt (prime_info_t i)
@@ -187,6 +199,24 @@ getprime_mt (prime_info_t i)
   return i->offset + 2 * i->current;
 }
 
+ecm_uint
+getprime_jump_and_next_mt (prime_info_t i, ecm_uint n)
+{
+   // Can't jump backwards or to last returned prime.
+   if (getprime_last_prime (i) >= n) {
+       // Clear and re-init to start at 3 again
+       prime_info_clear(i);
+       prime_info_init(i);
+   }
+
+   ecm_uint p;
+   do {
+     p = getprime_mt(i);
+   } while (p < n);
+   return p;
+}
+
+
 #ifdef MAIN
 int
 main (int argc, char *argv[])
@@ -206,7 +236,7 @@ main (int argc, char *argv[])
   prime_info_init (i);
 
   for (pi = 0, p = 2; p <= B; p = getprime_mt (i), pi++);
-  printf ("pi(%lu)=%lu\n", B, pi);
+    printf ("pi(%lu)=%lu\n", B, pi);
 
   prime_info_clear (i); /* free the tables */
 
