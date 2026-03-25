@@ -32,7 +32,13 @@ SOFTWARE.
 #include <string.h>
 #ifdef HAVE_ENDIAN_H
 #include <endian.h>
-#elif defined (__MINGW32__)
+#elif defined(__APPLE__)
+#include <libkern/OSByteOrder.h>
+#define htole32(x) OSSwapHostToLittleInt32(x)
+#define le32toh(x) OSSwapLittleToHostInt32(x)
+#define htole64(x) OSSwapHostToLittleInt64(x)
+#define le64toh(x) OSSwapLittleToHostInt64(x)
+#elif defined(__MINGW32__)
 #include <sys/param.h>
 #if BYTE_ORDER == LITTLE_ENDIAN
 #define htole32(x) (x)
