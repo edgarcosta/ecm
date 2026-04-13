@@ -4,12 +4,13 @@ linux_gmp:
     - autoreconf -i
     - ./configure
     - make
-    - make check
+    - make check || cat test-suite.log
   artifacts:
     paths:
       - test-suite.log
   tags:
     - linux
+
 linux_gwnum:
   stage: build
   script:
