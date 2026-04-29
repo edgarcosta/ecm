@@ -1319,7 +1319,7 @@ bypass:\
 \
 	/* report unimplemented start sequence */\
 	report_error:\
-		printf("ERROR: unimplemented chain start sequence: %lu %lu %lu\n", val3, val4, val5);\
+		printf("ERROR: unimplemented chain start sequence: %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", val3, val4, val5);\
 		return 0;\
 }
 

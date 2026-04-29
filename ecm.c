@@ -591,7 +591,7 @@ uint8_t generate_Lucas_chain( uint64_t prime, uint64_t chain_code, chain_element
 		}
 		else
 		{
-			printf("ERROR: generate_Lucas_chain entered with prime = %lu < 11 but != 2, 3, 5 or 7\n", prime);
+			printf("ERROR: generate_Lucas_chain entered with prime = %" PRIu64 " < 11 but != 2, 3, 5 or 7\n", prime);
 			return 0;
 		}
 	}

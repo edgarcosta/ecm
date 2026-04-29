@@ -24,6 +24,7 @@ http://www.gnu.org/licenses/ or write to the Free Software Foundation, Inc.,
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <inttypes.h>
 #ifdef HAVE_SYS_RESOURCE_H
 #  include <sys/resource.h>
 #endif
@@ -2155,7 +2156,7 @@ uint32_t sieve_init(void)
 	printf(" check 10^3: p(168) = %u, p(169) = %u\n",sieve_primes[161].prime, sieve_primes[162].prime);
 	printf(" check 10^4: p(1229) = %u, p(1230) = %u\n",sieve_primes[1222].prime, sieve_primes[1223].prime);
 	printf(" check 10^5: p(9592) = %u, p(9593) = %u\n",sieve_primes[9585].prime, sieve_primes[9586].prime);
-	printf("Total sieve primes = %d, pi(%d) = %d, last p = %u, last sieve_space_start_index = %lu\n",
+	printf("Total sieve primes = %d, pi(%d) = %d, last p = %u, last sieve_space_start_index = %" PRIu64 "\n",
 			i, 2*NEWSIEVE_SIZE, i+6, sieve_primes[i-1].prime, sieve_primes[i-1].sieve_space_start_index);
 
 	return i;
@@ -4031,7 +4032,7 @@ int32_t main( int argc, char *argv[])
     }
 
     B1 = (uint64_t)B1_in;
-    printf("\nGenerator upper limit B1 = %lu\n\n", B1);
+    printf("\nGenerator upper limit B1 = %" PRIu64 "\n\n", B1);
 
     if( thread_count_in > 0 )
     {
@@ -4414,7 +4415,7 @@ int32_t main( int argc, char *argv[])
 				{
 					last_save_index = tgt_prime_list[*tgt_p_count - 1].save_index;
 					reached_last_prime = _true_;
-					printf("last prime = %lu, last_save_index = %u\n", tgt_prime_list[*tgt_p_count - 1].prime, tgt_prime_list[*tgt_p_count - 1].save_index );
+					printf("last prime = %" PRIu64 ", last_save_index = %u\n", tgt_prime_list[*tgt_p_count - 1].prime, tgt_prime_list[*tgt_p_count - 1].save_index );
 				}
 
 				/* write zeros into the chain code array for the primes just generated */
@@ -4439,7 +4440,7 @@ int32_t main( int argc, char *argv[])
 			chain_code_array_count = pending_list_read_count + (*tgt_p_count - pending_list_zero_count); /* total index count */
 			printf("Info: this interval chain code array size = %u: # of target primes = %u, # of unsaved chain codes = %u\n",
 					chain_code_array_count, *tgt_p_count, (pending_list_read_count - pending_list_zero_count));
-			printf("Info: target prime range: smallest = %lu, largest = %lu\n",
+			printf("Info: target prime range: smallest = %" PRIu64 ", largest = %" PRIu64 "\n",
 					tgt_prime_list[0].prime, tgt_prime_list[*tgt_p_count - 1].prime );
 			if( chain_code_array_count > MAX_CODE_OR_PRIME_COUNT ) /* sanity check - should never happen */
 				printf("\nERROR: # of chain codes = %u > MAX_CODE_OR_PRIME_COUNT = %u\n", chain_code_array_count, MAX_CODE_OR_PRIME_COUNT);
@@ -4828,7 +4829,7 @@ int32_t main( int argc, char *argv[])
 				k += chain_count_max_dbls[i];
 			}
 
-			printf("This interval # of chains leading to a target prime = %lu, # of max dbl chains = %u\n", interval_chain_count, k);
+			printf("This interval # of chains leading to a target prime = %" PRIu64 ", # of max dbl chains = %u\n", interval_chain_count, k);
 
 			total_prime_chain_count += interval_chain_count;
 			total_chain_count_max_dbls += k;
@@ -4866,7 +4867,7 @@ int32_t main( int argc, char *argv[])
 				{
 					max_code_length = tgt_prime_code_length[i];
 					code_index = tgt_prime_list[i].save_index - *chain_code_list_start_index;
-					printf("ALERT: new max code length = %u bits for prime = %lu, code = %016lX\n",
+					printf("ALERT: new max code length = %u bits for prime = %" PRIu64 ", code = %016" PRIX64 "\n",
 						max_code_length, tgt_prime_list[i].prime, chain_code_list[code_index]);
 				}
 
@@ -4886,10 +4887,10 @@ int32_t main( int argc, char *argv[])
 
 			if( final_interval )
 			{
-				printf("\nFor reference, Fib[%u] = %lu, Luc[%u] = %lu, Fib[%u] = %lu, Luc[%u] = %lu, Fib[%u] = %lu\n",
+				printf("\nFor reference, Fib[%u] = %" PRIu64 ", Luc[%u] = %" PRIu64 ", Fib[%u] = %" PRIu64 ", Luc[%u] = %" PRIu64 ", Fib[%u] = %" PRIu64 "\n",
 						test_length, Fib[test_length], test_length-1, Luc[test_length-1], test_length+1,
 						Fib[test_length+1], test_length, Luc[test_length], test_length+2, Fib[test_length+2]);
-				printf("For test_length = %u, total # of chains leading to a target prime = %lu, total # of max dbl chains = %lu\n",
+				printf("For test_length = %u, total # of chains leading to a target prime = %" PRIu64 ", total # of max dbl chains = %" PRIu64 "\n",
 						test_length, total_prime_chain_count, total_chain_count_max_dbls);
 
 				if( chain_list_zero_count != new_tgt_prime_list_count )
@@ -4899,16 +4900,16 @@ int32_t main( int argc, char *argv[])
 				if(new_tgt_prime_list_count > 0)
 				{
 					if( B1 <= Fib[ test_length + 2 ] )
-						printf("Total primes < B1 = %lu in next target list: %u. Smallest = %lu, largest = %lu\n",
+						printf("Total primes < B1 = %" PRIu64 " in next target list: %u. Smallest = %" PRIu64 ", largest = %" PRIu64 "\n",
 								B1, new_tgt_prime_list_count, smallest_target_prime_next_list, largest_target_prime_next_list);
 					else
-						printf("Total primes < Fib[%u] in next target list: %u. Smallest = %lu, largest = %lu\n",
+						printf("Total primes < Fib[%u] in next target list: %u. Smallest = %" PRIu64 ", largest = %" PRIu64 "\n",
 							(test_length + 2), new_tgt_prime_list_count, smallest_target_prime_next_list, largest_target_prime_next_list);
 				}
 				else
 				{
 					if( truncating_for_B1 )
-						printf("No primes < B1 = %lu in next target prime list\n", B1);
+						printf("No primes < B1 = %" PRIu64 " in next target prime list\n", B1);
 					else
 						printf("No primes < Fib[%u] in next target prime list\n", (test_length + 2));
 				}
