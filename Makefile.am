@@ -46,12 +46,12 @@ libecm_la_SOURCES = ecm.c ecm2.c pm1.c pp1.c getprime_r.c listz.c lucas.c \
 		   aprtcle/mpz_aprcl.c addlaws.c torsions.c
 # Link the asm redc code (if we use it) into libecm.la
 libecm_la_CPPFLAGS = $(MULREDCINCPATH)
-libecm_la_CFLAGS = $(OPENMP_CFLAGS) -g -lpthread
+libecm_la_CFLAGS = $(OPENMP_CFLAGS) -g
 # www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 # If any interfaces have been added, removed, or changed since the last
 # update, increment current, and set revision to 0.
 libecm_la_LDFLAGS = $(LIBECM_LDFLAGS) -version-info 1:0:0 -g
-libecm_la_LIBADD = $(MULREDCLIBRARY)
+libecm_la_LIBADD = $(MULREDCLIBRARY) -lpthread
 if WANT_GPU 
   libecm_la_SOURCES += cudacommon.cu
   libecm_la_SOURCES += cgbn_stage1.cu
@@ -76,10 +76,10 @@ tune_SOURCES = mpmod.c tune.c mul_lo.c listz.c auxlib.c ks-multiply.c \
                schoen_strass.c polyeval.c median.c ecm_ntt.c \
 	       ntt_gfp.c mpzspv.c mpzspm.c sp.c spv.c spm.c auxarith.c
 tune_CPPFLAGS = -DTUNE $(MULREDCINCPATH)
-tune_CFLAGS = -lpthread
-tune_LDADD = $(MULREDCLIBRARY) $(GMPLIB)
+tune_LDADD = $(MULREDCLIBRARY) $(GMPLIB) -lpthread
 
-ecmfactor_CFLAGS = $(OPENMP_CFLAGS) -lpthread
+ecmfactor_CFLAGS = $(OPENMP_CFLAGS)
+ecmfactor_LDADD = $(LDADD) -lpthread
 
 # multiecm_CPPFLAGS = -DOUTSIDE_LIBECM
 # multiecm_SOURCES = auxi.c candi.c eval.c random.c multiecm.c \
@@ -90,9 +90,9 @@ aprcl_CFLAGS = -Wall
 aprcl_SOURCES = aprtcle/mpz_aprcl.c aprtcle/aprcl.c
 aprcl_LDADD = $(GMPLIB)
 
-LucasChainGen_CFLAGS = -ansi -lpthread
+LucasChainGen_CFLAGS = -ansi
 LucasChainGen_SOURCES = LucasChainGenerator/src/LucasChainGen.c
-LucasChainGen_LDADD =
+LucasChainGen_LDADD = -lpthread
 
 rho_SOURCES = rho.c
 rho_CPPFLAGS = -DTESTDRIVE
