@@ -24,6 +24,7 @@ linux_gwnum:
 check_on_osx:
   stage: build
   script:
+    - eval `/opt/homebrew/bin/brew shellenv`
     - autoreconf -i
     - ./configure
     - make
