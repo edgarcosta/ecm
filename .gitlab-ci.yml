@@ -20,3 +20,16 @@ linux_gwnum:
       - test-suite.log
   tags:
     - linux
+
+check_on_osx:
+  stage: build
+  script:
+    - autoreconf -i
+    - ./configure
+    - make
+    - make check || cat test-suite.log
+  artifacts:
+    paths:
+      - test-suite.log
+  tags:
+    - osx
