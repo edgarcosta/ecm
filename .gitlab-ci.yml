@@ -26,7 +26,7 @@ check_on_osx:
   script:
     - eval `/opt/homebrew/bin/brew shellenv`
     - autoreconf -i
-    - ./configure --with-gmp=/opt/homebrew 
+    - ./configure --with-gmp=/opt/homebrew
     - make
     - make check || cat test-suite.log
   artifacts:
