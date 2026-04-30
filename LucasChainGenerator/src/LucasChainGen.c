@@ -2664,7 +2664,7 @@ uint8_t generate_Lchain( uint64_t prime, uint64_t chain_code, chain_element *Lch
 					Lchain[ chain_length+1 ].dif_offset = k;
 
 					chain_length++;
-					printf("Info: code fragment 0x0D in chain for p = %lu, code = %016lX\n", prime, chain_code_save);
+					printf("Info: code fragment 0x0D in chain for p = %" PRIu64 ", code = %016" PRIX64 "\n", prime, chain_code_save);
 					break;
 				}
 				case 1:
@@ -2684,7 +2684,7 @@ uint8_t generate_Lchain( uint64_t prime, uint64_t chain_code, chain_element *Lch
 					Lchain[ chain_length+1 ].dif_offset = k;
 
 					chain_length++;
-					printf("Info: code fragment 0x1D in chain for p = %lu, code = %016lX\n", prime, chain_code_save);
+					printf("Info: code fragment 0x1D in chain for p = %" PRIu64 ", code = %016" PRIX64 "\n", prime, chain_code_save);
 					break;
 				}
 				case 2: /* can occur but don't have an example (yet) */
@@ -2704,7 +2704,7 @@ uint8_t generate_Lchain( uint64_t prime, uint64_t chain_code, chain_element *Lch
 					Lchain[ chain_length+1 ].dif_offset = k;
 
 					chain_length++;
-					printf("Info: code fragment 0x2D in chain for p = %lu, code = %016lX\n", prime, chain_code_save);
+					printf("Info: code fragment 0x2D in chain for p = %" PRIu64 ", code = %016" PRIX64 "\n", prime, chain_code_save);
 					break;
 				}
 				case 3: /* can occur but don't have an example (yet) */
@@ -2724,7 +2724,7 @@ uint8_t generate_Lchain( uint64_t prime, uint64_t chain_code, chain_element *Lch
 					Lchain[ chain_length+1 ].dif_offset = k;
 
 					chain_length++;
-					printf("Info: code fragment 0x3D in chain for p = %lu, code = %016lX\n", prime, chain_code_save);
+					printf("Info: code fragment 0x3D in chain for p = %" PRIu64 ", code = %016" PRIX64 "\n", prime, chain_code_save);
 					break;
 				}
 				default:
@@ -2805,17 +2805,17 @@ uint8_t generate_Lchain( uint64_t prime, uint64_t chain_code, chain_element *Lch
 		if( Lchain[ i ].dif_offset > *max_index )
 		{
 			*max_index = Lchain[ i ].dif_offset;
-			printf("# of older x,z states to save = %u for prime = %lu, code = %016lX\n", *max_index, prime, chain_code_save);
+			printf("# of older x,z states to save = %u for prime = %" PRIu64 ", code = %016" PRIX64 "\n", *max_index, prime, chain_code_save);
 			for(k = 0; k <= chain_length; k++)
-				printf(" %lu", Lchain[ k ].value);
+				printf(" %" PRIu64, Lchain[ k ].value);
 			printf("\n chain length = %u, doubles count = %u\n", chain_length, *dbl_count);
 		}
 
 	if( prime == 710559673 )
 	{
-		printf("PRAC performance worst for prime = %lu, optimal code = %016lX\n", prime, chain_code_save);
+		printf("PRAC performance worst for prime = %" PRIu64 ", optimal code = %016" PRIX64 "\n", prime, chain_code_save);
 		for(k = 0; k <= chain_length; k++)
-			printf(" %lu", Lchain[ k ].value);
+			printf(" %" PRIu64, Lchain[ k ].value);
 		printf("\n chain length = %u, doubles count = %u\n", chain_length, *dbl_count);
 	}
 
@@ -4514,9 +4514,9 @@ int32_t main( int argc, char *argv[])
 								{
 									prime_exception_count++;
 									if( tgt_prime_list[j].prime == Luc[test_length] )
-										printf("*** Lucas prime exception: Luc[%u] = %lu\n", test_length, Luc[test_length]);
+										printf("*** Lucas prime exception: Luc[%u] = %" PRIu64 "\n", test_length, Luc[test_length]);
 									else
-										printf("*** One-step prime exception > Luc[%u]: %lu\n", test_length, temp_var);
+										printf("*** One-step prime exception > Luc[%u]: %" PRIu64 "\n", test_length, temp_var);
 								}
 								break;
 							}
@@ -4529,7 +4529,7 @@ int32_t main( int argc, char *argv[])
 
 			if(tgt_prime_list[*tgt_p_count - 1].prime == Fib[test_length + 2])
 			{
-				printf("*** Fibonacci prime exception: Fib[%u] = %lu\n", (test_length + 2), Fib[test_length + 2] );
+				printf("*** Fibonacci prime exception: Fib[%u] = %" PRIu64 "\n", (test_length + 2), Fib[test_length + 2] );
 			}
 #endif
 
@@ -4840,17 +4840,17 @@ int32_t main( int argc, char *argv[])
 #if 0
 				if( i < 10 ) /* print results for up to 10 primes at start of target list */
 				{
-					printf("target prime[%u] = %lu, total chain_count = %u, max # of doubles = %u, # of chains with max dbles = %u\n",
+					printf("target prime[%u] = %" PRIu64 ", total chain_count = %u, max # of doubles = %u, # of chains with max dbles = %u\n",
 							i, tgt_prime_list[i].prime, chain_count[i], chain_max_dbl_count[i], chain_count_max_dbls[i]);
-					printf("chain code for p: %016lX\n", chain_code_list[tgt_prime_list[i].save_index - *chain_code_list_start_index]);
+					printf("chain code for p: %016" PRIX64 "\n", chain_code_list[tgt_prime_list[i].save_index - *chain_code_list_start_index]);
 				}
 /* #endif */
 
 				if( chain_count[i] == 1 )
 				{
-					printf("*** single unique chain for target prime[%u] = %lu, total chain_count = %u, max # of doubles = %u, # of chains with max dbles = %u\n",
+					printf("*** single unique chain for target prime[%u] = %" PRIu64 ", total chain_count = %u, max # of doubles = %u, # of chains with max dbles = %u\n",
 							i, tgt_prime_list[i].prime, chain_count[i], chain_max_dbl_count[i], chain_count_max_dbls[i]);
-					printf("*** chain code for p: %016lX\n", chain_code_list[tgt_prime_list[i].save_index - *chain_code_list_start_index]);
+					printf("*** chain code for p: %016" PRIX64 "\n", chain_code_list[tgt_prime_list[i].save_index - *chain_code_list_start_index]);
 					unique_chain_count++;
 				}
 
@@ -4858,9 +4858,9 @@ int32_t main( int argc, char *argv[])
 				{
 					unique_chain_count++;
 /* #if 0 */
-					printf("*** unique chain for target prime[%u] = %lu, total chain_count = %u, max # of doubles = %u, # of chains with max dbles = %u\n",
+					printf("*** unique chain for target prime[%u] = %" PRIu64 ", total chain_count = %u, max # of doubles = %u, # of chains with max dbles = %u\n",
 							i, tgt_prime_list[i].prime, chain_count[i], chain_max_dbl_count[i], chain_count_max_dbls[i]);
-					printf("*** chain code for p: %016lX\n", chain_code_list[tgt_prime_list[i].save_index - *chain_code_list_start_index]);
+					printf("*** chain code for p: %016" PRIX64 "\n", chain_code_list[tgt_prime_list[i].save_index - *chain_code_list_start_index]);
 				}
 #endif
 				if( tgt_prime_code_length[i] > max_code_length )

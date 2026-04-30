@@ -368,14 +368,14 @@ bypass:\
 \
 /*										if( (tgt_prime_code_length[k]) > 64 && (*code_length <= 64) )\
 										{\
-											printf("Resolved problem: new chain code length <= 64 bits for tgt_prime_list[%u] = %lu\n",\
+											printf("Resolved problem: new chain code length <= 64 bits for tgt_prime_list[%u] = %" PRIu64 "\n",\
 													k, tgt_prime_list[k].prime);\
 										} */\
 \
 										tgt_prime_code_length[k] = *code_length;\
 /*										if(*code_length > 64)\
 										{\
-											printf("PROBLEM: chain code length > 64 bits for tgt_prime_list[%u] = %lu\n",\
+											printf("PROBLEM: chain code length > 64 bits for tgt_prime_list[%u] = %" PRIu64 "\n",\
 													k, tgt_prime_list[k].prime);\
 										} */\
 									}\
@@ -392,7 +392,7 @@ bypass:\
 												code_index = tgt_prime_list[k].save_index - *chain_code_list_start_index;\
 												chain_code_list[code_index] = temp_var;\
 												tgt_prime_code_length[k] = *code_length;\
-/*												printf("Resolved problem: new chain code length <= 64 bits for tgt_prime_list[%u] = %lu\n",\
+/*												printf("Resolved problem: new chain code length <= 64 bits for tgt_prime_list[%u] = %" PRIu64 "\n",\
 														k, tgt_prime_list[k].prime); */\
 											}\
 										}\
@@ -470,7 +470,7 @@ bypass:\
 #define CHECK_CAN_TEMPLATE_8 \
 /*								if( (tgt_prime_code_length[k]) > 64 && (*code_length <= 64) )\
 								{\
-									printf("Resolved problem: new chain code length <= 64 bits for tgt_prime_list[%u] = %lu\n",\
+									printf("Resolved problem: new chain code length <= 64 bits for tgt_prime_list[%u] = %" PRIu64 "\n",\
 											k, tgt_prime_list[k].prime);\
 								} */\
 \
@@ -478,7 +478,7 @@ bypass:\
 \
 /*								if(*code_length > 64)\
 								{\
-									printf("PROBLEM: chain code length > 64 bits for tgt_prime_list[%u] = %lu\n",\
+									printf("PROBLEM: chain code length > 64 bits for tgt_prime_list[%u] = %" PRIu64 "\n",\
 											k, tgt_prime_list[k].prime);\
 								} */\
 							}\
@@ -495,7 +495,7 @@ bypass:\
 										code_index = tgt_prime_list[k].save_index - *chain_code_list_start_index;\
 										chain_code_list[code_index] = temp_var;\
 										tgt_prime_code_length[k] = *code_length;\
-/*										printf("Resolved problem: new chain code length <= 64 bits for tgt_prime_list[%u] = %lu\n",\
+/*										printf("Resolved problem: new chain code length <= 64 bits for tgt_prime_list[%u] = %" PRIu64 "\n",\
 												k, tgt_prime_list[k].prime); */\
 									}\
 								}\
