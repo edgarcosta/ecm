@@ -40,6 +40,7 @@ on 20 Nov. 2025:
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <inttypes.h>
 #include "cpuid.h"
 #include "gmp.h"		// GMP library
 #include "gwnum.h"
@@ -329,7 +330,7 @@ uint8_t gw_generate_Lucas_chain( uint64_t prime, uint64_t chain_code, chain_elem
 		}
 		else
 		{
-			printf("ERROR: gw_generate_Lucas_chain entered with prime = %lu < 11 but != 2, 3, 5 or 7\n", prime);
+			printf("ERROR: gw_generate_Lucas_chain entered with prime = %" PRIu64 " < 11 but != 2, 3, 5 or 7\n", prime);
 			return 0;
 		}
 	}
@@ -756,7 +757,7 @@ uint8_t gw_generate_Lucas_chain( uint64_t prime, uint64_t chain_code, chain_elem
 	}
 
 	if( Lchain[ chain_length ].value != prime )
-		printf("ERROR: prime/prime code mismatch for p = %lu\n", prime);
+		printf("ERROR: prime/prime code mismatch for p = %" PRIu64 "\n", prime);
 
 	return chain_length;
 }
@@ -1346,7 +1347,7 @@ int normalize (
                 /* copy LCS[base_indx] x,z states over to current_xz */\
                 gwcopy_xz ( &gwdata, &LCS[base_indx], &current_xz);\
 \
-				printf ("Reached Lchain_codes.dat EOF at p = %lu, reverting to use prac\n", prime);\
+				printf ("Reached Lchain_codes.dat EOF at p = %" PRIu64 ", reverting to use prac\n", prime);\
 			}\
 		} /* end if( using_code_file) */
 
