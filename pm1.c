@@ -227,7 +227,7 @@ pm1_stage1 (mpz_t f, mpres_t a, mpmod_t n, double B1, double *B1done,
   /* Now p > cascade_limit, flush cascade and exponentiate */
   mulcascade_get_z (g, cascade);
   mulcascade_free (cascade);
-  outputf (OUTPUT_DEVVERBOSE, "Exponent has %u bits\n", 
+  outputf (OUTPUT_DEVVERBOSE, "Exponent has %zu bits\n",
            mpz_sizeinbase (g, 2));
   
   if (smallbase)

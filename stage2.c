@@ -172,8 +172,8 @@ init_progression_coeffs (mpz_t i0, const unsigned long d,
   if (i0 != NULL)
     mpz_set (t, i0);
   
-  outputf (OUTPUT_TRACE, "init_progression_coeffs: i0 = %Zd, d = %u, e = %u, "
-           "k = %u, m = %u, E = %u, a = %d, size_fd = %u\n", 
+  outputf (OUTPUT_TRACE, "init_progression_coeffs: i0 = %Zd, d = %lu, e = %lu, "
+           "k = %u, m = %u, E = %u, a = %d, size_fd = %u\n",
            t, d, e, k, m, E, dickson_a, size_fd);
 
   /* Due to the condition i == 1 (mod m) we start at i = 1 or i = 0,
@@ -209,7 +209,7 @@ init_progression_coeffs (mpz_t i0, const unsigned long d,
           if (test_verbose (OUTPUT_TRACE))
             outputf (OUTPUT_TRACE, "init_progression_coeffs: NOT initing a "
                      "progression for Dickson_{%d,%d}(%Zd + n * %Zd), "
-                     "gcd (%Zd, %u) == %u)\n", E, dickson_a, t, dke, t, d,
+                     "gcd (%Zd, %lu) == %lu)\n", E, dickson_a, t, dke, t, d,
                      mpz_gcd_ui (NULL, t, d));
       /* We increase i by m, so we increase t by e*m */
       mpz_add (t, t, em);

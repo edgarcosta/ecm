@@ -684,9 +684,9 @@ choose_P (const mpz_t B2min, const mpz_t B2, const unsigned long lmax,
 	  
 	  if (test_P (B2min, B2, m_1, tryP, tryl - trys_1, effB2min, tryeffB2))
 	    {
-	      outputf (OUTPUT_TRACE, 
+	      outputf (OUTPUT_TRACE,
 		       "choose_P: P = %lu, l = %lu, s_1 = %lu, k = s_2 = %lu "
-		       "works, m_1 = %Zd, effB2min = %Zd, effB2 = %zZd\n",
+		       "works, m_1 = %Zd, effB2min = %Zd, effB2 = %Zd\n",
 		       tryP, tryl, trys_1, trys_2, m_1, effB2min, tryeffB2);
 
           /* do not allow B2min to be less than 0 */
@@ -755,14 +755,14 @@ list_output_poly (listz_t l, unsigned long len, int monic, int symmetric,
   unsigned long i;
 
   if (prefix != NULL)
-    outputf (verbosity, prefix);
+    outputf (verbosity, "%s", prefix);
 
   if (len == 0)
     {
       if (monic)
-	outputf (verbosity, "1\n", len, len);
+	outputf (verbosity, "1\n");
       else
-	outputf (verbosity, "0\n", len);
+	outputf (verbosity, "0\n");
       return;
     }
 
@@ -780,7 +780,7 @@ list_output_poly (listz_t l, unsigned long len, int monic, int symmetric,
       outputf (verbosity, "%Zd * x^%lu + ", l[i], i);
   outputf (verbosity, "%Zd", l[0]);
   if (suffix != NULL)
-    outputf (verbosity, suffix);
+    outputf (verbosity, "%s", suffix);
 }
 
 #if 0

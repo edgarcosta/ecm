@@ -1244,7 +1244,7 @@ ecm_stage1 (mpz_t f, mpres_t x, mpres_t A, mpmod_t n, double B1,
            if (mpres_is_zero (LCS_z[base_indx], n))
            {
              outputf (OUTPUT_VERBOSE, "Reached point at infinity, %.0f divides "
-                      "group orders\n", p);
+                      "group orders\n", (double) p);
              break;
            }
          }
@@ -1253,14 +1253,14 @@ ecm_stage1 (mpz_t f, mpres_t x, mpres_t A, mpmod_t n, double B1,
            if (mpres_is_zero (z, n))
            {
              outputf (OUTPUT_VERBOSE, "Reached point at infinity, %.0f divides "
-                      "group orders\n", p);
+                      "group orders\n", (double) p);
              break;
            }
          }
 
          if (stop_asap != NULL && (*stop_asap) ())
          {
-           outputf (OUTPUT_NORMAL, "Interrupted at prime %.0f\n", p);
+           outputf (OUTPUT_NORMAL, "Interrupted at prime %.0f\n", (double) p);
            break;
          }
 
@@ -1436,12 +1436,12 @@ ecm_stage1_W (mpz_t f, ell_curve_t E, ell_point_t P, mpmod_t n,
 	    }
 	    if (ell_point_is_zero (P, E, n)){
 		outputf (OUTPUT_VERBOSE, "Reached point at infinity, "
-			 "%.0f divides group orders\n", p);
+			 "%.0f divides group orders\n", (double) p);
 		break;
 	    }
-	    
+
 	    if (stop_asap != NULL && (*stop_asap) ()){
-		outputf (OUTPUT_NORMAL, "Interrupted at prime %.0f\n", p);
+		outputf (OUTPUT_NORMAL, "Interrupted at prime %.0f\n", (double) p);
 		break;
 	    }
 	    

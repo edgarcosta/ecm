@@ -1449,7 +1449,7 @@ F_mul_trans (mpz_t *R, mpz_t *A, mpz_t *B, unsigned int lenA,
       const unsigned int lenA0 = h, lenA1 = lenA - h;
 
       outputf (OUTPUT_DEVVERBOSE, "schoen_strass.c: Transposed Karatsuba, "
-	       "lenA = %lu, lenB = %lu\n", lenA, lenB);
+	       "lenA = %u, lenB = %u\n", lenA, lenB);
 
       /* A = a1 * x^h + a0
          B = b3 * x^3h + b2 * x^2h + b1 * x^h + b0
