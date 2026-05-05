@@ -154,8 +154,8 @@ od:
                  SP_NUMB_BITS + 4;
         
 	memory = memory_use (dF, sp_num, (treefile) ? 0 : lg_dF, modulus);
-        outputf (OUTPUT_DEVVERBOSE, 
-                 "Estimated mem for dF = %.0d, sp_num = %d: %.0f\n", 
+        outputf (OUTPUT_DEVVERBOSE,
+                 "Estimated mem for dF = %lu, sp_num = %d: %.0f\n",
                  dF, sp_num, memory);
         if (memory > maxmem)
           break;

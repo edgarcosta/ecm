@@ -484,7 +484,7 @@ ecm_rootsF (mpz_t f, listz_t F, root_params_t *root_params,
     }
   for (i = 0; i < params->size_fd; i++)
     {
-      outputf (OUTPUT_TRACE, "ecm_rootsF: coeffs[%d] = %Zd\n", i, coeffs[i]);
+      outputf (OUTPUT_TRACE, "ecm_rootsF: coeffs[%lu] = %Zd\n", i, coeffs[i]);
       mpres_init (state.fd[i].x, modulus);
       mpres_init (state.fd[i].y, modulus);
     }
