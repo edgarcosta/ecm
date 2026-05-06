@@ -57,21 +57,25 @@ jobs:
           set -euxo pipefail
           autoreconf --force --install
 
-          CONFIGURE_FLAGS=(--enable-shared)
+          CONFIGURE_FLAGS=()
+
+          if [[ "${{ matrix.with_gwnum }}" == "true" ]]; then
+            # The prebuilt gwnum.a from the prime95 zip contains non-PIC
+            # x86 asm objects, which Mach-O rejects when linking into a
+            # shared library. Build static only for this cell, and force
+            # the classic linker (Apple's ld-prime crashes parsing some
+            # of those object files).
+            CONFIGURE_FLAGS+=(--disable-shared --with-gwnum=/tmp/P95/gwnum)
+            export LDFLAGS="-Wl,-ld_classic${LDFLAGS:+ $LDFLAGS}"
+          else
+            CONFIGURE_FLAGS+=(--enable-shared)
+          fi
 
           if [[ "$RUNNER_OS" == "macOS" ]]; then
             GMP_PREFIX="$(brew --prefix gmp)"
             export CPPFLAGS="-I$GMP_PREFIX/include${CPPFLAGS:+ $CPPFLAGS}"
             export LDFLAGS="-L$GMP_PREFIX/lib${LDFLAGS:+ $LDFLAGS}"
             CONFIGURE_FLAGS+=(--with-gmp="$GMP_PREFIX")
-          fi
-
-          if [[ "${{ matrix.with_gwnum }}" == "true" ]]; then
-            CONFIGURE_FLAGS+=(--with-gwnum=/tmp/P95/gwnum)
-            # Apple's ld-prime (Xcode 15+) hits an internal assertion when
-            # linking against the prebuilt gwnum.a from the prime95 zip.
-            # Force the classic linker for this cell only.
-            export LDFLAGS="-Wl,-ld_classic${LDFLAGS:+ $LDFLAGS}"
           fi
 
           ./configure "${CONFIGURE_FLAGS[@]}"
