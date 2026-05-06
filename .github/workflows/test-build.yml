@@ -68,6 +68,10 @@ jobs:
 
           if [[ "${{ matrix.with_gwnum }}" == "true" ]]; then
             CONFIGURE_FLAGS+=(--with-gwnum=/tmp/P95/gwnum)
+            # Apple's ld-prime (Xcode 15+) hits an internal assertion when
+            # linking against the prebuilt gwnum.a from the prime95 zip.
+            # Force the classic linker for this cell only.
+            export LDFLAGS="-Wl,-ld_classic${LDFLAGS:+ $LDFLAGS}"
           fi
 
           ./configure "${CONFIGURE_FLAGS[@]}"
