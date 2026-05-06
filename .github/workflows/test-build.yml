@@ -62,11 +62,9 @@ jobs:
           if [[ "${{ matrix.with_gwnum }}" == "true" ]]; then
             # The prebuilt gwnum.a from the prime95 zip contains non-PIC
             # x86 asm objects, which Mach-O rejects when linking into a
-            # shared library. Build static only for this cell, and force
-            # the classic linker (Apple's ld-prime crashes parsing some
-            # of those object files).
+            # shared library (-dynamiclib). Build static only for this
+            # cell so libecm becomes a .a, sidestepping that link.
             CONFIGURE_FLAGS+=(--disable-shared --with-gwnum=/tmp/P95/gwnum)
-            export LDFLAGS="-Wl,-ld_classic${LDFLAGS:+ $LDFLAGS}"
           else
             CONFIGURE_FLAGS+=(--enable-shared)
           fi
