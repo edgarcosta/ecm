@@ -22,7 +22,9 @@ jobs:
           - os: macos-15-intel
             name: macOS x86_64 GWNUM
             with_gwnum: true
-            gwnum_makefile: makemac
+          - os: macos-latest
+            name: macOS ARM64 GWNUM
+            with_gwnum: true
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
@@ -38,18 +40,24 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libgmp-dev autoconf automake libtool
 
-      - name: Build gwnum (macOS GWNUM)
+      - name: Fetch prime95 headers (macOS GWNUM)
         if: matrix.with_gwnum && runner.os == 'macOS'
         shell: bash
         run: |
           set -euxo pipefail
+          # We only need gwnum.h / cpuid.h to *parse* gw_ecmstag1.c and
+          # Fgw.c -- this cell is compile-only, so we never link against
+          # gwnum.a. We touch a zero-byte gwnum.a to satisfy configure's
+          # AC_CHECK_FILE([$with_gwnum/gwnum.a], ...) check (configure.ac:369).
+          # That sidesteps prime95's lack of ARM64 prebuilt objects in
+          # v30.19 b21 (only macosx64/ ships) and the toolchain bugs the
+          # full link path triggers on Intel as well.
           P95_URL="https://www.mersenne.org/download/software/v30/30.19/p95v3019b21.source.zip"
           mkdir -p /tmp/P95
           curl -sL -o /tmp/P95/P95_source.zip "$P95_URL"
           unzip -q -o -d /tmp/P95 /tmp/P95/P95_source.zip
-          ls /tmp/P95/gwnum/${{ matrix.gwnum_makefile }}
-          (cd /tmp/P95/gwnum && make -f ${{ matrix.gwnum_makefile }})
-          ls -la /tmp/P95/gwnum/*.a
+          touch /tmp/P95/gwnum/gwnum.a
+          ls -la /tmp/P95/gwnum/gwnum.h /tmp/P95/gwnum/gwnum.a
 
       - name: Build and test
         shell: bash
@@ -60,10 +68,9 @@ jobs:
           CONFIGURE_FLAGS=()
 
           if [[ "${{ matrix.with_gwnum }}" == "true" ]]; then
-            # The prebuilt gwnum.a from the prime95 zip contains non-PIC
-            # x86 asm objects, which Mach-O rejects when linking into a
-            # shared library (-dynamiclib). Build static only for this
-            # cell so libecm becomes a .a, sidestepping that link.
+            # Compile-only cell -- see comment in "Fetch prime95 headers".
+            # --disable-shared keeps configure from generating the
+            # libtool dynamiclib rules we never reach.
             CONFIGURE_FLAGS+=(--disable-shared --with-gwnum=/tmp/P95/gwnum)
           else
             CONFIGURE_FLAGS+=(--enable-shared)
